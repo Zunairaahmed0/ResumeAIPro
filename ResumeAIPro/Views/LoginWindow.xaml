@@ -1,0 +1,294 @@
+<Window x:Class="ResumeAIPro.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="ResumeAI Pro — Sign In"
+        Width="1300" Height="860"
+        MinWidth="960" MinHeight="660"
+        WindowStyle="None"
+        ResizeMode="CanResizeWithGrip"
+        WindowStartupLocation="CenterScreen"
+        Background="#07040F"
+        FontFamily="Segoe UI"
+        Foreground="White">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome ResizeBorderThickness="5" CaptionHeight="48"
+                      CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <Style x:Key="TabBtnActive" TargetType="Button">
+            <Setter Property="Background"      Value="#1C1640"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height"          Value="36"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="7" Background="{TemplateBinding Background}">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#7C3AED" ShadowDepth="0" BlurRadius="8" Opacity="0.5"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TabBtnInactive" TargetType="Button">
+            <Setter Property="Background"      Value="Transparent"/>
+            <Setter Property="Foreground"      Value="#64748B"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height"          Value="36"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="7" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#C4B5FD"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- ── Top bar (drag area + window controls) ── -->
+        <Border Height="48" VerticalAlignment="Top"
+                Background="#0E0B1E"
+                BorderThickness="0 0 0 1" BorderBrush="#1E1A38"
+                Panel.ZIndex="10">
+            <Grid Margin="20 0 0 0">
+                <!-- App name in title bar -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="24" Height="24" CornerRadius="7" Margin="0 0 8 0"
+                            ClipToBounds="True">
+                        <Image Source="pack://application:,,,/Assets/ResumeAIPro_LOGO.png"
+                               Stretch="UniformToFill"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
+                    <TextBlock Text="ResumeAI Pro" FontSize="13" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Foreground="White"/>
+                </StackPanel>
+
+                <!-- Window controls -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Click="MinBtn_Click" Style="{StaticResource WinBtn}"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                        <md:PackIcon Kind="WindowMinimize" Width="14" Height="14"/>
+                    </Button>
+                    <Button Click="MaxBtn_Click" Style="{StaticResource WinBtn}"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                        <md:PackIcon Kind="WindowMaximize" Width="14" Height="14"/>
+                    </Button>
+                    <Button Click="CloseBtn_Click" Style="{StaticResource CloseWinBtn}"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                        <md:PackIcon Kind="Close" Width="14" Height="14"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ── Background glow blobs ── -->
+        <Ellipse Width="600" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top"
+                 Margin="-100 -80 0 0">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="#3A1B6A40" Offset="0"/>
+                    <GradientStop Color="#00000000" Offset="1"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+        <Ellipse Width="500" Height="350" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                 Margin="0 0 -80 -60">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="#06B6D430" Offset="0"/>
+                    <GradientStop Color="#00000000" Offset="1"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <!-- ── Centered login card ── -->
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Width="480" Margin="0 48 0 0">
+
+            <!-- Logo -->
+            <Border Width="64" Height="64" HorizontalAlignment="Center" Margin="0 0 0 16">
+                <Border.Effect>
+                    <DropShadowEffect Color="#7C3AED" ShadowDepth="0" BlurRadius="28" Opacity="0.8"/>
+                </Border.Effect>
+                <Border CornerRadius="18" ClipToBounds="True">
+                    <Image Source="pack://application:,,,/Assets/ResumeAIPro_LOGO.png"
+                           Stretch="UniformToFill"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Border>
+            </Border>
+
+            <TextBlock Text="ResumeAI Pro" FontSize="26" FontWeight="Bold"
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="AI-Powered Career Intelligence" FontSize="12"
+                       HorizontalAlignment="Center" Foreground="#64748B" Margin="0 4 0 0"/>
+
+            <!-- Card -->
+            <Border Margin="0 28 0 0" CornerRadius="20" Padding="32 28"
+                    BorderThickness="1" BorderBrush="#221E40">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#141028" Offset="0"/>
+                        <GradientStop Color="#0C0A1C"  Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Effect>
+                    <DropShadowEffect Color="#7C3AED" ShadowDepth="0" BlurRadius="30" Opacity="0.15"/>
+                </Border.Effect>
+
+                <StackPanel>
+                    <!-- Tab switcher -->
+                    <Border CornerRadius="10" Background="#0D0A1E" Padding="4" Margin="0 0 0 24">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="SignInTabBtn" Grid.Column="0" Content="Sign In"
+                                    Style="{StaticResource TabBtnActive}" Click="SignInTab_Click"/>
+                            <Button x:Name="RegisterTabBtn" Grid.Column="1" Content="Create Account"
+                                    Style="{StaticResource TabBtnInactive}" Click="RegisterTab_Click"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Sign In Panel -->
+                    <StackPanel x:Name="SignInPanel">
+                        <TextBlock Text="EMAIL" FontSize="10" Foreground="#64748B" Margin="0 0 0 6"/>
+                        <TextBox x:Name="SignInEmail"
+                                 md:HintAssist.Hint="you@example.com"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 Foreground="White" Margin="0 0 0 18"/>
+
+                        <TextBlock Text="PASSWORD" FontSize="10" Foreground="#64748B" Margin="0 0 0 6"/>
+                        <PasswordBox x:Name="SignInPassword"
+                                     md:HintAssist.Hint="••••••••"
+                                     Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                                     Foreground="White" Margin="0 0 0 6"
+                                     KeyDown="Password_KeyDown"/>
+
+                        <TextBlock x:Name="SignInError" Foreground="#EF4444" FontSize="12"
+                                   TextWrapping="Wrap" Margin="0 6 0 0" Visibility="Collapsed"/>
+
+                        <Button x:Name="SignInBtn" Content="Sign In →"
+                                Click="SignIn_Click" Margin="0 20 0 0"
+                                Style="{StaticResource GlowButton}"
+                                HorizontalAlignment="Stretch">
+                            <Button.Effect>
+                                <DropShadowEffect Color="#7C3AED" ShadowDepth="0" BlurRadius="20" Opacity="0.6"/>
+                            </Button.Effect>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Register Panel -->
+                    <StackPanel x:Name="RegisterPanel" Visibility="Collapsed">
+                        <TextBlock Text="FULL NAME" FontSize="10" Foreground="#64748B" Margin="0 0 0 6"/>
+                        <TextBox x:Name="RegName"
+                                 md:HintAssist.Hint="Your name"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 Foreground="White" Margin="0 0 0 18"/>
+
+                        <TextBlock Text="EMAIL" FontSize="10" Foreground="#64748B" Margin="0 0 0 6"/>
+                        <TextBox x:Name="RegEmail"
+                                 md:HintAssist.Hint="you@example.com"
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 Foreground="White" Margin="0 0 0 18"/>
+
+                        <TextBlock Text="PASSWORD (min 6 characters)" FontSize="10" Foreground="#64748B" Margin="0 0 0 6"/>
+                        <PasswordBox x:Name="RegPassword"
+                                     md:HintAssist.Hint="••••••••"
+                                     Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                                     Foreground="White" Margin="0 0 0 6"/>
+
+                        <TextBlock x:Name="RegisterError" Foreground="#EF4444" FontSize="12"
+                                   TextWrapping="Wrap" Margin="0 6 0 0" Visibility="Collapsed"/>
+
+                        <Button x:Name="RegisterBtn" Content="Create Account →"
+                                Click="Register_Click" Margin="0 20 0 0"
+                                Style="{StaticResource GlowButton}"
+                                HorizontalAlignment="Stretch">
+                            <Button.Effect>
+                                <DropShadowEffect Color="#7C3AED" ShadowDepth="0" BlurRadius="20" Opacity="0.6"/>
+                            </Button.Effect>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Divider -->
+                    <Grid Margin="0 20 0 16">
+                        <Separator Background="#221E40" VerticalAlignment="Center"/>
+                        <Border Background="#141028" HorizontalAlignment="Center" Padding="12 0">
+                            <TextBlock Text="or" Foreground="#64748B" FontSize="12"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Guest button -->
+                    <Button Content="Continue as Guest"
+                            Click="Guest_Click"
+                            HorizontalAlignment="Stretch"
+                            Background="Transparent" BorderThickness="1"
+                            BorderBrush="#1E1A38" Foreground="#94A3B8"
+                            Height="44" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bdr" CornerRadius="22"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        Height="{TemplateBinding Height}">
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <md:PackIcon Kind="AccountOutline" Width="16" Height="16"
+                                                     Margin="0 0 8 0" VerticalAlignment="Center"
+                                                     Foreground="{TemplateBinding Foreground}"/>
+                                        <TextBlock Text="Continue as Guest" VerticalAlignment="Center"
+                                                   Foreground="{TemplateBinding Foreground}" FontSize="13"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bdr" Property="Background" Value="#14112A"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <TextBlock Text="No account needed · All features available"
+                               FontSize="10" Foreground="#374151"
+                               HorizontalAlignment="Center" Margin="0 8 0 0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Footer -->
+            <TextBlock Text="Powered by Google Gemini AI · Firebase Auth"
+                       FontSize="11" Foreground="#374151"
+                       HorizontalAlignment="Center" Margin="0 16 0 0"/>
+        </StackPanel>
+
+        <!-- Loading overlay -->
+        <Grid x:Name="LoadingOverlay" Visibility="Collapsed"
+              Background="#CC07040F" Panel.ZIndex="99">
+            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                         IsIndeterminate="True" Width="48" Height="48"
+                         Foreground="{StaticResource AccentCyan}"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</Window>
