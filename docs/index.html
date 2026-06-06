@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResumeAI Pro — AI-Powered Resume Analyzer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0F0A1E;
+      color: #E2E8F0;
+      min-height: 100vh;
+    }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      border-bottom: 1px solid rgba(139,92,246,.2);
+      background: rgba(15,10,30,.8);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .logo { font-size: 1.2rem; font-weight: 700; color: #A78BFA; letter-spacing: -.5px; }
+    .logo span { color: #E2E8F0; }
+    nav a {
+      color: #94A3B8; text-decoration: none; font-size: .9rem;
+      transition: color .2s;
+    }
+    nav a:hover { color: #A78BFA; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 100px 24px 80px;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(139,92,246,.18) 0%, transparent 70%);
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 18px;
+      background: rgba(139,92,246,.15);
+      border: 1px solid rgba(139,92,246,.4);
+      border-radius: 999px;
+      font-size: .8rem;
+      color: #A78BFA;
+      margin-bottom: 28px;
+      letter-spacing: .5px;
+    }
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 24px;
+    }
+    h1 .accent { color: #A78BFA; }
+    .subtitle {
+      font-size: 1.15rem;
+      color: #94A3B8;
+      max-width: 580px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+    .cta-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background: linear-gradient(135deg, #7C3AED, #5B21B6);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: 0 0 32px rgba(124,58,237,.4);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 48px rgba(124,58,237,.6);
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      border: 1.5px solid rgba(139,92,246,.5);
+      color: #A78BFA;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: rgba(139,92,246,.08);
+      transition: background .2s, border-color .2s;
+    }
+    .btn-secondary:hover {
+      background: rgba(139,92,246,.16);
+      border-color: rgba(139,92,246,.8);
+    }
+    .note {
+      margin-top: 20px;
+      font-size: .82rem;
+      color: #64748B;
+    }
+
+    /* ── Features ── */
+    section { padding: 80px 24px; }
+    .section-label {
+      text-align: center;
+      font-size: .8rem;
+      color: #A78BFA;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    h2 {
+      text-align: center;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      margin-bottom: 56px;
+      letter-spacing: -.5px;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .feature-card {
+      padding: 28px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      transition: border-color .2s, background .2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(139,92,246,.4);
+      background: rgba(139,92,246,.07);
+    }
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 14px;
+    }
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #E2E8F0;
+    }
+    .feature-card p {
+      font-size: .9rem;
+      color: #94A3B8;
+      line-height: 1.6;
+    }
+
+    /* ── How it works ── */
+    .steps {
+      display: flex;
+      gap: 0;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: calc(16.66% + 28px);
+      right: calc(16.66% + 28px);
+      height: 2px;
+      background: linear-gradient(90deg, #7C3AED, #5B21B6);
+      opacity: .4;
+    }
+    .step { flex: 1; text-align: center; padding: 0 12px; }
+    .step-num {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #7C3AED, #5B21B6);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1.2rem;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 20px rgba(124,58,237,.4);
+    }
+    .step h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+    .step p { font-size: .85rem; color: #94A3B8; line-height: 1.5; }
+
+    /* ── Tech stack ── */
+    .tech-section { background: rgba(139,92,246,.04); border-top: 1px solid rgba(139,92,246,.1); border-bottom: 1px solid rgba(139,92,246,.1); }
+    .pills {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      justify-content: center; max-width: 700px; margin: 0 auto;
+    }
+    .pill {
+      padding: 8px 20px;
+      background: rgba(139,92,246,.12);
+      border: 1px solid rgba(139,92,246,.3);
+      border-radius: 999px;
+      font-size: .85rem; color: #A78BFA;
+    }
+
+    /* ── CTA footer ── */
+    .cta-section {
+      text-align: center;
+      padding: 100px 24px;
+      background: radial-gradient(ellipse 60% 80% at 50% 100%, rgba(139,92,246,.15) 0%, transparent 70%);
+    }
+    .cta-section h2 { margin-bottom: 16px; }
+    .cta-section p { color: #94A3B8; margin-bottom: 40px; font-size: 1.05rem; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 28px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      font-size: .82rem;
+      color: #475569;
+    }
+    footer a { color: #7C3AED; text-decoration: none; }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      .steps { flex-direction: column; gap: 32px; }
+      .steps::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="logo">ResumeAI <span>Pro</span></div>
+    <a href="https://github.com/Zunairaahmed0/ResumeAIPro" target="_blank">View on GitHub →</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="badge">✦ AI-Powered Career Tools</div>
+    <h1>Analyze Your Resume<br>with <span class="accent">AI Precision</span></h1>
+    <p class="subtitle">
+      Get an instant ATS score, skill gap analysis, job match scoring, and a personalized
+      cover letter — all powered by Google Gemini AI.
+    </p>
+    <div class="cta-row">
+      <a class="btn-primary" href="https://github.com/Zunairaahmed0/ResumeAIPro/releases/latest" target="_blank">
+        ⬇ Download for Windows
+      </a>
+      <a class="btn-secondary" href="https://github.com/Zunairaahmed0/ResumeAIPro" target="_blank">
+        ⭐ View Source Code
+      </a>
+    </div>
+    <p class="note">Windows 10 / 11 &nbsp;·&nbsp; No installation needed &nbsp;·&nbsp; Free to use</p>
+  </section>
+
+  <!-- Features -->
+  <section>
+    <p class="section-label">Features</p>
+    <h2>Everything you need to land the job</h2>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>ATS Score Analysis</h3>
+        <p>Get a real-time ATS compatibility score with detailed formatting, content, and impact breakdowns.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Job Match Scoring</h3>
+        <p>Paste any job description and see exactly how well your resume matches — with a skill gap breakdown.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✍️</div>
+        <h3>AI Cover Letter</h3>
+        <p>Generate a tailored, professional cover letter for any job in seconds using your resume as context.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>AI Job Finder</h3>
+        <p>Discover matching job opportunities based on your skills, experience level, and preferred location.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <h3>Multi-Format Support</h3>
+        <p>Upload PDF, DOCX, or TXT resumes. Automatic text extraction with intelligent parsing.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📜</div>
+        <h3>Analysis History</h3>
+        <p>Every analysis is saved locally so you can track improvement over time and compare results.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section>
+    <p class="section-label">How it works</p>
+    <h2>Three steps to a better resume</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Upload Resume</h3>
+        <p>Drop your PDF, DOCX, or TXT file — the app reads it instantly.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>AI Analyzes</h3>
+        <p>Google Gemini evaluates your ATS score, skills, experience, and impact.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Take Action</h3>
+        <p>Match jobs, generate a cover letter, or export your full report.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech stack -->
+  <section class="tech-section">
+    <p class="section-label">Built with</p>
+    <h2 style="margin-bottom:32px;">Tech Stack</h2>
+    <div class="pills">
+      <span class="pill">C# .NET 8</span>
+      <span class="pill">WPF</span>
+      <span class="pill">MVVM</span>
+      <span class="pill">Google Gemini AI</span>
+      <span class="pill">Firebase Auth</span>
+      <span class="pill">iText7 (PDF)</span>
+      <span class="pill">OpenXML (DOCX)</span>
+      <span class="pill">CommunityToolkit.Mvvm</span>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="cta-section">
+    <h2>Ready to optimize your resume?</h2>
+    <p>Download the app, add your free Gemini API key, and get your first analysis in under a minute.</p>
+    <div class="cta-row">
+      <a class="btn-primary" href="https://github.com/Zunairaahmed0/ResumeAIPro/releases/latest" target="_blank">
+        ⬇ Download ResumeAI Pro
+      </a>
+    </div>
+    <p class="note" style="margin-top:16px;">
+      Get a free Gemini API key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#A78BFA;">aistudio.google.com/apikey</a>
+    </p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>Built by <strong>Zunaira Ahmed</strong> &nbsp;·&nbsp;
+      <a href="https://github.com/Zunairaahmed0/ResumeAIPro" target="_blank">GitHub Repository</a>
+      &nbsp;·&nbsp; Powered by Google Gemini AI
+    </p>
+  </footer>
+
+</body>
+</html>
