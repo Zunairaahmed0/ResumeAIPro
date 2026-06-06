@@ -15,8 +15,8 @@ namespace ResumeAIPro.Services
         private readonly string _apiKey;
 
         private const string ApiBase    = "https://generativelanguage.googleapis.com/v1beta/models/";
-        private const string ModelPrimary  = "gemini-2.5-flash";
-        private const string ModelFallback = "gemini-2.0-flash";
+        private const string ModelPrimary  = "gemini-2.0-flash-lite";
+        private const string ModelFallback = "gemini-2.5-flash-lite";
 
         public AIAnalysisService(string apiKey)
         {
@@ -201,8 +201,8 @@ Rules:
         // ══════════════════════════════════════════════════════════
         private async Task<string> CallGeminiAsync(string prompt, int maxTokens = 8192)
         {
-            // Try primary model first, fall back if overloaded/unavailable
-            foreach (var model in new[] { ModelPrimary, ModelFallback })
+            // Try models in order — each has its own separate quota pool
+            foreach (var model in new[] { ModelPrimary, ModelFallback, "gemini-2.0-flash", "gemini-2.5-flash" })
             {
                 var url  = $"{ApiBase}{model}:generateContent?key={_apiKey}";
                 var body = new
@@ -223,17 +223,37 @@ Rules:
                 var response = await _http.PostAsync(url, content);
                 var raw      = await response.Content.ReadAsStringAsync();
 
-                // 503 / UNAVAILABLE — try next model
+                // 503 / 429 — quota or overload, try next model
                 if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable
-                    || raw.Contains("\"UNAVAILABLE\""))
+                    || response.StatusCode == System.Net.HttpStatusCode.TooManyRequests
+                    || raw.Contains("\"UNAVAILABLE\"")
+                    || raw.Contains("RESOURCE_EXHAUSTED"))
                     continue;
 
                 if (!response.IsSuccessStatusCode)
                     throw new Exception($"Gemini API error {response.StatusCode}: {raw}");
 
-                var obj  = JObject.Parse(raw);
-                var text = obj["candidates"]?[0]?["content"]?["parts"]?[0]?["text"]?.ToString()
-                           ?? throw new Exception("Unexpected Gemini response format.");
+                var obj   = JObject.Parse(raw);
+                var parts = obj["candidates"]?[0]?["content"]?["parts"] as JArray;
+
+                // Gemini 2.5 Flash may return thinking parts (marked "thought": true) before
+                // the actual response. Find the last non-thought text part.
+                string? text = null;
+                if (parts != null)
+                {
+                    for (int i = parts.Count - 1; i >= 0; i--)
+                    {
+                        var p = parts[i];
+                        var isThought = p["thought"]?.ToObject<bool>() ?? false;
+                        if (!isThought)
+                        {
+                            text = p["text"]?.ToString();
+                            if (!string.IsNullOrWhiteSpace(text)) break;
+                        }
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(text))
+                    throw new Exception("Unexpected Gemini response format.");
 
                 return CleanJson(text);
             }

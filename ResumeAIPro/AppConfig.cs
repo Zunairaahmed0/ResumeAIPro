@@ -7,7 +7,7 @@ namespace ResumeAIPro
     public static class AppConfig
     {
         // Get your free Gemini key at: https://aistudio.google.com/apikey
-        public const string GeminiApiKey = "AIzaSyBmsoV-SKUN2oO7c_Zgog4qLs94h9X2rQ4";
+        public const string GeminiApiKey = "AIzaSyBFtxEeT-kvZjxHWNdWlrvTciKy4dXejog";
 
         // Get from Firebase Console → Project Settings → Web API Key (optional)
         public const string FirebaseApiKey = "AIzaSyD0HHYHyD0kzD-RJWhbLJGYQo5QlqTe8iA";

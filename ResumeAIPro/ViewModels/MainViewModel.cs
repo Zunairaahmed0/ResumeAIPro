@@ -38,6 +38,9 @@ namespace ResumeAIPro.ViewModels
         [ObservableProperty] private bool   _hasError       = false;
         [ObservableProperty] private string _errorMessage   = "";
 
+        // Guard against running multiple AI operations simultaneously
+        private bool _operationInProgress = false;
+
         // ── Settings ──────────────────────────────────────────────
         [ObservableProperty] private string _apiKey = "";
 
@@ -161,18 +164,43 @@ namespace ResumeAIPro.ViewModels
 
         public async Task ProcessResumeFile(string filePath)
         {
+            // File size guard — reject files over 10 MB
+            var fileInfo = new System.IO.FileInfo(filePath);
+            if (fileInfo.Length > 10 * 1024 * 1024)
+            {
+                HasError     = true;
+                ErrorMessage = "File is too large (max 10 MB). Please use a smaller resume file.";
+                return;
+            }
+
+            var ext = System.IO.Path.GetExtension(filePath).ToLowerInvariant();
+            if (ext != ".pdf" && ext != ".docx" && ext != ".txt")
+            {
+                HasError     = true;
+                ErrorMessage = $"Unsupported file type '{ext}'. Please use PDF, DOCX, or TXT.";
+                return;
+            }
+
             try
             {
-                IsLoading      = true;
-                LoadingMessage = "Reading your resume...";
-                HasError       = false;
-                AnalysisReady  = false;
-                MatchReady     = false;
+                IsLoading        = true;
+                LoadingMessage   = "Reading your resume...";
+                HasError         = false;
+                AnalysisReady    = false;
+                MatchReady       = false;
                 CoverLetterReady = false;
 
-                ResumeData = await _parser.ParseAsync(filePath);
+                ResumeData     = await _parser.ParseAsync(filePath);
                 ResumeUploaded = true;
                 UploadDropText = $"✓  {ResumeData.FileName}";
+
+                if (string.IsNullOrWhiteSpace(ResumeData.RawText))
+                {
+                    IsLoading    = false;
+                    HasError     = true;
+                    ErrorMessage = "Could not extract text from this file. It may be image-based or password-protected.";
+                    return;
+                }
 
                 if (!string.IsNullOrWhiteSpace(ApiKey))
                     await AnalyzeResume();
@@ -181,6 +209,12 @@ namespace ResumeAIPro.ViewModels
                     IsLoading     = false;
                     StatusMessage = "Resume loaded. Enter your Gemini API key in Settings and click Analyze.";
                 }
+            }
+            catch (NotSupportedException ex)
+            {
+                IsLoading    = false;
+                HasError     = true;
+                ErrorMessage = ex.Message;
             }
             catch (Exception ex)
             {
@@ -199,16 +233,21 @@ namespace ResumeAIPro.ViewModels
             }
             if (string.IsNullOrWhiteSpace(ApiKey))
             {
-                HasError = true; ErrorMessage = "Please enter your Gemini API key in Settings."; return;
+                HasError = true; ErrorMessage = "Please enter your Gemini API key in Settings tab."; return;
+            }
+            if (_operationInProgress)
+            {
+                HasError = true; ErrorMessage = "Please wait for the current operation to finish."; return;
             }
 
             try
             {
+                _operationInProgress = true;
                 IsLoading      = true;
                 LoadingMessage = "AI is analyzing your resume...";
                 HasError       = false;
 
-                _ai ??= new AIAnalysisService(ApiKey);
+                _ai = new AIAnalysisService(ApiKey);
 
                 AnalysisResult = await _ai.AnalyzeResumeAsync(ResumeData);
                 AnalysisReady  = true;
@@ -220,15 +259,37 @@ namespace ResumeAIPro.ViewModels
                     JobSearchSkills = string.Join(", ", AnalysisResult.TechStack.Take(6));
                 JobSearchExp = AnalysisResult.ExperienceLevel;
 
+                // Save analysis to history immediately
+                var entry = new AnalysisHistoryEntry
+                {
+                    ResumeFileName = ResumeData.FileName,
+                    JobTitle       = "Analysis Only",
+                    AtsScore       = AnalysisResult.AtsScore,
+                    MatchScore     = 0
+                };
+                if (!History.Any(h => h.ResumeFileName == entry.ResumeFileName && h.JobTitle == "Analysis Only"))
+                {
+                    History.Insert(0, entry);
+                    _history.Save(History);
+                }
+
                 StatusMessage   = $"Analysis complete — ATS Score: {AnalysisResult.AtsScore}/100";
                 CurrentTabIndex = 2;
             }
             catch (Exception ex)
             {
                 HasError     = true;
-                ErrorMessage = $"Analysis failed: {ex.Message}";
+                ErrorMessage = FriendlyError(ex.Message);
+                System.Windows.MessageBox.Show(
+                    FriendlyError(ex.Message), "Analysis Failed",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
             }
-            finally { IsLoading = false; }
+            finally
+            {
+                IsLoading            = false;
+                _operationInProgress = false;
+            }
         }
 
         [RelayCommand]
@@ -244,11 +305,16 @@ namespace ResumeAIPro.ViewModels
             }
             if (string.IsNullOrWhiteSpace(ApiKey))
             {
-                HasError = true; ErrorMessage = "Please enter your Gemini API key in Settings."; return;
+                HasError = true; ErrorMessage = "Please enter your Gemini API key in Settings tab."; return;
+            }
+            if (_operationInProgress)
+            {
+                HasError = true; ErrorMessage = "Please wait for the current operation to finish."; return;
             }
 
             try
             {
+                _operationInProgress = true;
                 IsLoading      = true;
                 LoadingMessage = "Matching your resume to the job...";
                 HasError       = false;
@@ -283,9 +349,13 @@ namespace ResumeAIPro.ViewModels
             catch (Exception ex)
             {
                 HasError     = true;
-                ErrorMessage = $"Job matching failed: {ex.Message}";
+                ErrorMessage = FriendlyError(ex.Message);
             }
-            finally { IsLoading = false; }
+            finally
+            {
+                IsLoading            = false;
+                _operationInProgress = false;
+            }
         }
 
         [RelayCommand]
@@ -297,11 +367,16 @@ namespace ResumeAIPro.ViewModels
             }
             if (string.IsNullOrWhiteSpace(ApiKey))
             {
-                HasError = true; ErrorMessage = "Please enter your Gemini API key in Settings."; return;
+                HasError = true; ErrorMessage = "Please enter your Gemini API key in Settings tab."; return;
+            }
+            if (_operationInProgress)
+            {
+                HasError = true; ErrorMessage = "Please wait for the current operation to finish."; return;
             }
 
             try
             {
+                _operationInProgress = true;
                 IsLoading      = true;
                 LoadingMessage = "Writing your personalized cover letter...";
                 HasError       = false;
@@ -322,9 +397,13 @@ namespace ResumeAIPro.ViewModels
             catch (Exception ex)
             {
                 HasError     = true;
-                ErrorMessage = $"Cover letter generation failed: {ex.Message}";
+                ErrorMessage = FriendlyError(ex.Message);
             }
-            finally { IsLoading = false; }
+            finally
+            {
+                IsLoading            = false;
+                _operationInProgress = false;
+            }
         }
 
         [RelayCommand]
@@ -342,7 +421,11 @@ namespace ResumeAIPro.ViewModels
         {
             if (string.IsNullOrWhiteSpace(ApiKey))
             {
-                HasError = true; ErrorMessage = "Please enter your Gemini API key in Settings."; return;
+                HasError = true; ErrorMessage = "Please enter your Gemini API key in Settings tab."; return;
+            }
+            if (_operationInProgress)
+            {
+                HasError = true; ErrorMessage = "Please wait for the current operation to finish."; return;
             }
 
             // Resolve search parameters — prefer manual inputs, fall back to analysis result
@@ -369,6 +452,7 @@ namespace ResumeAIPro.ViewModels
 
             try
             {
+                _operationInProgress = true;
                 IsLoading        = true;
                 JobFinderLoading = true;
                 LoadingMessage   = "Searching for matching jobs...";
@@ -389,12 +473,13 @@ namespace ResumeAIPro.ViewModels
             catch (Exception ex)
             {
                 HasError     = true;
-                ErrorMessage = $"Job search failed: {ex.Message}";
+                ErrorMessage = FriendlyError(ex.Message);
             }
             finally
             {
-                IsLoading        = false;
-                JobFinderLoading = false;
+                IsLoading            = false;
+                JobFinderLoading     = false;
+                _operationInProgress = false;
             }
         }
 
@@ -487,6 +572,21 @@ namespace ResumeAIPro.ViewModels
         }
 
         // ── Helpers ───────────────────────────────────────────────
+        private static string FriendlyError(string raw)
+        {
+            if (raw.Contains("RESOURCE_EXHAUSTED") || raw.Contains("429") || raw.Contains("quota"))
+                return "AI quota exhausted. Please wait a minute and try again, or add a new Gemini API key in Settings.";
+            if (raw.Contains("API key") || raw.Contains("API_KEY") || raw.Contains("401") || raw.Contains("403"))
+                return "Invalid API key. Please check your Gemini API key in Settings.";
+            if (raw.Contains("model") && (raw.Contains("not found") || raw.Contains("404")))
+                return "AI model unavailable. Please try again in a moment.";
+            if (raw.Contains("network") || raw.Contains("connect") || raw.Contains("timeout") || raw.Contains("SocketException"))
+                return "Network error. Please check your internet connection and try again.";
+            if (raw.Contains("Unexpected Gemini response"))
+                return "Received an unexpected response from AI. Please try again.";
+            return raw.Length > 200 ? raw[..200] + "…" : raw;
+        }
+
         private static string GetScoreColor(int score) => score switch
         {
             >= 80 => "#10B981",

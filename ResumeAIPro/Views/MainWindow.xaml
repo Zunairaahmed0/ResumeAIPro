@@ -130,7 +130,7 @@
                 <Border Grid.Row="2" BorderThickness="0 1 0 0" BorderBrush="{StaticResource BorderBrush}"
                         Padding="0 8 0 24">
                     <Button Click="SettingsNav_Click" Background="Transparent" BorderThickness="0"
-                            Foreground="{StaticResource MutedText}"
+                            Foreground="#94A3B8"
                             Cursor="Hand" HorizontalAlignment="Stretch"
                             WindowChrome.IsHitTestVisibleInChrome="True">
                         <Button.Template>
@@ -403,36 +403,37 @@
                                         Visibility="{Binding AnalysisReady, Converter={StaticResource BoolVis}, ConverterParameter=Inverse}">
 
                                 <!-- Hero section -->
-                                <Grid Margin="0 0 0 28">
+                                <Grid Margin="0 0 0 28" Height="290">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="420"/>
+                                        <ColumnDefinition Width="380"/>
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Left: text + CTA -->
                                     <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0 0 36 0">
                                         <!-- Badge: outline style like inspo -->
                                         <Border Background="Transparent" CornerRadius="20" Padding="12 5"
-                                                HorizontalAlignment="Left" Margin="0 0 0 20"
+                                                HorizontalAlignment="Left" Margin="0 0 0 14"
                                                 BorderThickness="1" BorderBrush="#3D2ED0">
                                             <TextBlock Text="AI POWERED CAREER INTELLIGENCE"
                                                        FontSize="10" FontWeight="Bold"
                                                        Foreground="{StaticResource AccentCyan}"/>
                                         </Border>
                                         <!-- Heading with colored "AI" -->
-                                        <TextBlock FontSize="32" FontWeight="Bold" Margin="0 0 0 14" TextWrapping="Wrap">
+                                        <TextBlock FontSize="32" FontWeight="Bold" Margin="0 0 0 10" TextWrapping="Wrap">
                                             <Run Text="Optimize Your Resume"/>
                                             <LineBreak/>
                                             <Run Text="with "/>
                                             <Run Text="AI" Foreground="{StaticResource AccentCyan}"/>
                                         </TextBlock>
                                         <TextBlock FontSize="13" Foreground="{StaticResource MutedText}"
-                                                   TextWrapping="Wrap" MaxWidth="440" Margin="0 0 0 30" LineHeight="22"
+                                                   TextWrapping="Wrap" Margin="0 0 0 18" LineHeight="22"
+                                                   HorizontalAlignment="Left" TextAlignment="Left"
                                                    Text="Get AI-powered analysis, ATS score, job matches, and smart suggestions to land your dream job."/>
                                         <!-- CTA buttons -->
                                         <StackPanel Orientation="Horizontal" Margin="0 0 0 12">
                                             <Button Click="DashGoToUpload_Click" Style="{StaticResource GlowButton}"
-                                                    Height="46" Padding="24 0" Margin="0 0 14 0">
+                                                    Height="44" Padding="20 0" Margin="0 0 12 0">
                                                 <StackPanel Orientation="Horizontal">
                                                     <md:PackIcon Kind="Upload" Width="17" Height="17"
                                                                  VerticalAlignment="Center" Margin="0 0 9 0"/>
@@ -440,24 +441,27 @@
                                                                FontSize="14" FontWeight="SemiBold"/>
                                                 </StackPanel>
                                             </Button>
-                                            <Button Click="DashGoToFinder_Click" Cursor="Hand">
+                                            <Button Click="DashGoToFinder_Click" Cursor="Hand" Margin="0 0 0 0">
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
-                                                        <Border x:Name="Bdr" CornerRadius="23" Height="46"
-                                                                BorderBrush="#2D2A50" BorderThickness="1"
-                                                                Background="#1A1535" Padding="22 0">
+                                                        <Border x:Name="Bdr" CornerRadius="22" Height="44"
+                                                                BorderBrush="#5B4FA0" BorderThickness="1.5"
+                                                                Background="#1E1A3A" Padding="18 0">
                                                             <StackPanel Orientation="Horizontal">
                                                                 <TextBlock Text="Try Demo" VerticalAlignment="Center"
-                                                                           FontSize="14" Foreground="#94A3B8"/>
+                                                                           FontSize="14" Foreground="#C4B5FD"/>
                                                                 <md:PackIcon Kind="ArrowRight" Width="15" Height="15"
                                                                              VerticalAlignment="Center" Margin="8 0 0 0"
-                                                                             Foreground="#94A3B8"/>
+                                                                             Foreground="#C4B5FD"/>
                                                             </StackPanel>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter TargetName="Bdr" Property="BorderBrush" Value="#4A3A80"/>
-                                                                <Setter TargetName="Bdr" Property="Background" Value="#221E40"/>
+                                                                <Setter TargetName="Bdr" Property="BorderBrush" Value="#7C3AED"/>
+                                                                <Setter TargetName="Bdr" Property="Background" Value="#2A2050"/>
+                                                                <Setter TargetName="Bdr" Property="Effect">
+                                                                    <Setter.Value><DropShadowEffect Color="#7C3AED" ShadowDepth="0" BlurRadius="14" Opacity="0.4"/></Setter.Value>
+                                                                </Setter>
                                                             </Trigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
